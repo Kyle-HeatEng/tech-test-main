@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 
+import { NotFoundException } from '@nestjs/common';
 import { BreedController } from './breed.controller';
 import { BreedService } from './breed.service';
 
@@ -11,6 +12,16 @@ describe('AppController', () => {
     'Pomeranian', 'Labrador'
   ]
 
+  const mockBreedDetails = {
+    name: 'Labrador',
+    lifeSpan: '10-12 years',
+    temperament: 'Kind, outgoing, agile, trusting, even tempered',
+    breedGroup: 'Sporting',
+    height: '21.5-24.5 inches',
+    weight: '55-80 lbs',
+    image: 'https://cdn2.thedogapi.com/images/B1SV7gqE7_400x400.jpg'
+  }
+
   beforeAll(async () => {
     const module = await Test.createTestingModule({
       controllers: [BreedController],
@@ -18,7 +29,17 @@ describe('AppController', () => {
         {
           provide: BreedService,
           useValue: {
-            getAllBreeds: jest.fn().mockReturnValue(mockBreedList)
+            getAllBreeds: jest.fn().mockReturnValue(mockBreedList),
+            getBreedDetails: jest.fn().mockImplementation((breedName: string) => {
+              const isBreed = mockBreedList.includes(breedName);
+              if(!isBreed) {
+                throw new NotFoundException({
+                  success: false,
+                  message: 'Breed not found',
+                });
+              }
+              return mockBreedDetails;
+            })
           }
         }
       ],
@@ -34,6 +55,22 @@ describe('AppController', () => {
       expect(breedResponse.data).toEqual(mockBreedList);
       expect(breedResponse.success).toEqual(true);
       expect(breedService.getAllBreeds).toHaveBeenCalled();
+    });
+  });
+  
+  describe('getBreedDetails', () => {
+    it('should return details of a valid breed', () => {
+      const breedDetailsResponse = breedController.getBreedDetails('Labrador');
+      expect(breedDetailsResponse.data).toEqual([mockBreedDetails]);
+      expect(breedDetailsResponse.success).toEqual(true);
+      expect(breedService.getBreedDetails).toHaveBeenCalledWith('Labrador');
+    });
+
+    it('should throw an error if the breed is not found', () => {
+      expect(() => breedController.getBreedDetails('Husky')).toThrow(
+        NotFoundException
+      );
+      expect(breedService.getBreedDetails).toHaveBeenCalledWith('Husky');
     });
   });
 });
