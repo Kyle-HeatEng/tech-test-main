@@ -3,9 +3,9 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { cold, hot } from 'jasmine-marbles';
 import { Observable } from 'rxjs';
+import { breedActions } from './breed.actions';
 import { BreedEffects } from './breed.effects';
 import { BreedService } from './breed.service';
-import { getBreedList, getBreedListFailure, getBreedListSuccess } from './breed.actions';
 
 describe('CourseProgressEffects', () => {
   let actions: Observable<unknown>;
@@ -44,12 +44,16 @@ describe('CourseProgressEffects', () => {
   describe('getBreedList$', () => {
     describe('when the service returns successful', () => {
       it('should dispatch getBreedListSuccess', () => {
-        actions = hot('-a', { a: getBreedList() });
+        actions = hot('-a', { a: breedActions.getBreedList() });
 
-        const serviceResponse = cold('-a', { a: mockBreedList });
+        const serviceResponse = cold('-a', {
+          a: { success: true, data: mockBreedList },
+        });
         service.getBreedList = jest.fn(() => serviceResponse);
 
-        const expected = cold('--a', { a: getBreedListSuccess({ breeds: mockBreedList }) });
+        const expected = cold('--a', {
+          a: breedActions.getBreedListSuccess({ breeds: mockBreedList }),
+        });
 
         expect(effects.getBreedList$).toBeObservable(expected);
         expect(service.getBreedList).toHaveBeenCalled();
@@ -60,12 +64,12 @@ describe('CourseProgressEffects', () => {
       it('should dispatch getBreedListFailure', () => {
         const error = new Error('oops');
 
-        actions = hot('-a', { a: getBreedList() });
+        actions = hot('-a', { a: breedActions.getBreedList() });
 
         const serviceResponse = cold('-#|', {}, error);
         service.getBreedList = jest.fn(() => serviceResponse);
 
-        const expected = cold('--a', { a: getBreedListFailure({error}) });
+        const expected = cold('--a', { a: breedActions.getBreedListFailure({error}) });
 
         expect(effects.getBreedList$).toBeObservable(expected);
         expect(service.getBreedList).toHaveBeenCalled();

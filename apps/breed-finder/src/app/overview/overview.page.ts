@@ -1,10 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { Store } from '@ngrx/store';
-import { getBreedList } from '../state/breeds/breed.actions';
-import { breedReducer } from '../state/breeds/breed.reducer';
 import { AsyncPipe } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
+import { breedActions } from '../state/breeds/breed.actions';
+import { breedReducer } from '../state/breeds/breed.reducer';
 
 @Component({
   standalone: true,
@@ -19,6 +18,6 @@ export class OverviewPageComponent implements OnInit {
   constructor(private store: Store) {}
 
   ngOnInit(){
-    this.store.dispatch(getBreedList())
+    this.store.dispatch(breedActions.getBreedList())
   }
 }

@@ -1,8 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import { BreedController } from './breed.controller';
 import { BreedService } from './breed.service';
-import { breedReducer } from '../../../breed-finder/src/app/state/breeds/breed.reducer';
 
 describe('AppController', () => {
   let breedController: BreedController;
@@ -31,7 +30,9 @@ describe('AppController', () => {
 
   describe('getData', () => {
     it('should return "Hello API"', () => {
-      expect(breedController.getBreeds()).toEqual(mockBreedList);
+      const breedResponse = breedController.getBreeds();
+      expect(breedResponse.data).toEqual(mockBreedList);
+      expect(breedResponse.success).toEqual(true);
       expect(breedService.getAllBreeds).toHaveBeenCalled();
     });
   });

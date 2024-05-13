@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BreedService } from './breed.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { getBreedList, getBreedListFailure, getBreedListSuccess } from './breed.actions';
 import { catchError, concatMap, map, of } from 'rxjs';
+import { breedActions } from './breed.actions';
+import { BreedService } from './breed.service';
 
 @Injectable()
 export class BreedEffects {
@@ -13,13 +13,18 @@ export class BreedEffects {
 
   getBreedList$ = createEffect(() => {
     return this.actions$.pipe(
-      ofType(getBreedList),
+      ofType(breedActions.getBreedList),
       concatMap(() => {
           return this.breedService.getBreedList().pipe(
-            map((breeds) =>
-              getBreedListSuccess({ breeds }),
+            map((res) =>
+              {
+                const { data, success, message } = res;
+                if(!success) {
+                  breedActions.getBreedListFailure({ error: new Error(message) })
+                }
+                return breedActions.getBreedListSuccess({ breeds: data })},
             ),
-            catchError((e) => of(getBreedListFailure({ error: e }))),
+            catchError((e) => of(breedActions.getBreedListFailure({ error: e }))),
           )
         }
       ),

@@ -1,7 +1,7 @@
-import { TestBed } from '@angular/core/testing';
-import { BreedService } from './breed.service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { HttpClient } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { BreedService } from './breed.service';
 
 describe('CapacitorListenersService', () => {
   let service: BreedService;
@@ -16,7 +16,7 @@ describe('CapacitorListenersService', () => {
         {
           provide: HttpClient,
           useValue: {
-            get: jest.fn().mockReturnValue(mockBreedList)
+            get: jest.fn().mockReturnValue(of({success: true, data: mockBreedList}))
           }
         }
       ],
@@ -32,8 +32,10 @@ describe('CapacitorListenersService', () => {
 
   describe('getBreedList', () => {
     it('should call http get', () => {
-      expect(service.getBreedList()).toEqual(mockBreedList);
-
+      service.getBreedList().subscribe((response) => {
+        expect(response.data).toEqual(mockBreedList);
+        expect(response.success).toEqual(true);
+      });
       expect(httpClient.get).toHaveBeenCalledWith('http://localhost:3000/api/breed')
     })
   })
