@@ -6,8 +6,16 @@
 
     @for (breed of breedList$ | async; track breed) {
       <div class="col-12 col-sm-6 col-lg-3">
-        <button type="button" class="btn btn-secondary overview__breed-button">{{ breed }}</button>
+        <a [routerLink]="['/breed', breed]" type="button" class="btn btn-secondary overview__breed-button">{{ breed }}</a>
       </div>
     }
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <h4 class="overview__title">Actions</h4>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <a class="btn btn-primary text-white overview__breed-button" [routerLink]="['/breed']">Add Breed</a>
+    </div>
   </div>
 </div>

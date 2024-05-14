@@ -1,24 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { getBreedList } from '../state/breeds/breed.actions';
-import { breedReducer } from '../state/breeds/breed.reducer';
-import { AsyncPipe } from '@angular/common';
 import { Observable } from 'rxjs';
+import { breedReducer } from '../state/breeds/breed.reducer';
 
 @Component({
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, RouterModule],
   selector: 'app-overview',
   templateUrl: './overview.page.html',
   styleUrls: ['overview.page.scss']
 })
-export class OverviewPageComponent implements OnInit {
+export class OverviewPageComponent {
+  private store = inject(Store);
+  
   breedList$: Observable<string[]> = this.store.select(breedReducer.selectBreedList);
 
-  constructor(private store: Store) {}
-
-  ngOnInit(){
-    this.store.dispatch(getBreedList())
-  }
 }

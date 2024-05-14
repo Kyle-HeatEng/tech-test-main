@@ -3,9 +3,10 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { cold, hot } from 'jasmine-marbles';
 import { Observable } from 'rxjs';
+import { breedActions } from './breed.actions';
 import { BreedEffects } from './breed.effects';
+import { Breed } from './breed.model';
 import { BreedService } from './breed.service';
-import { getBreedList, getBreedListFailure, getBreedListSuccess } from './breed.actions';
 
 describe('CourseProgressEffects', () => {
   let actions: Observable<unknown>;
@@ -14,6 +15,17 @@ describe('CourseProgressEffects', () => {
   let store: MockStore;
 
   const mockBreedList = ['Pomeranian', 'Poodle'];
+  const mockBreedDetails = {
+    name: 'Labrador Retriever',
+    description:
+      'Labrador Retrievers are friendly, outgoing, and high-spirited companions who have more than enough affection to go around for a family looking for a medium-to-large dog.',
+    size: 'Medium to Large',
+    origin: 'Canada, United Kingdom',
+    lifeExpectancy: '10-12 years',
+    temperament: ['Friendly', 'Outgoing', 'Gentle', 'Intelligent'],
+    image:
+      'https://www.purina.co.uk/sites/default/files/styles/square_medium_440x440/public/2022-07/Labrador-Retriever.jpg?itok=BrVXkZic',
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -24,10 +36,12 @@ describe('CourseProgressEffects', () => {
         {
           provide: BreedService,
           useValue: {
-            getBreedList: jest.fn()
-          }
-        }
-      ]
+            getBreedList: jest.fn(),
+            getBreedDetails: jest.fn(),
+            addBreed: jest.fn(),
+          },
+        },
+      ],
     });
 
     service = TestBed.inject(BreedService);
@@ -44,12 +58,16 @@ describe('CourseProgressEffects', () => {
   describe('getBreedList$', () => {
     describe('when the service returns successful', () => {
       it('should dispatch getBreedListSuccess', () => {
-        actions = hot('-a', { a: getBreedList() });
+        actions = hot('-a', { a: breedActions.getBreedList() });
 
-        const serviceResponse = cold('-a', { a: mockBreedList });
+        const serviceResponse = cold('-a', {
+          a: { success: true, data: mockBreedList },
+        });
         service.getBreedList = jest.fn(() => serviceResponse);
 
-        const expected = cold('--a', { a: getBreedListSuccess({ breeds: mockBreedList }) });
+        const expected = cold('--a', {
+          a: breedActions.getBreedListSuccess({ breeds: mockBreedList }),
+        });
 
         expect(effects.getBreedList$).toBeObservable(expected);
         expect(service.getBreedList).toHaveBeenCalled();
@@ -60,16 +78,112 @@ describe('CourseProgressEffects', () => {
       it('should dispatch getBreedListFailure', () => {
         const error = new Error('oops');
 
-        actions = hot('-a', { a: getBreedList() });
+        actions = hot('-a', { a: breedActions.getBreedList() });
 
         const serviceResponse = cold('-#|', {}, error);
         service.getBreedList = jest.fn(() => serviceResponse);
 
-        const expected = cold('--a', { a: getBreedListFailure({error}) });
+        const expected = cold('--a', { a: breedActions.getBreedListFailure({error}) });
 
         expect(effects.getBreedList$).toBeObservable(expected);
         expect(service.getBreedList).toHaveBeenCalled();
       });
+    });
+
+    describe('getBreedDetails$', () => {
+      describe('when the service returns successful', () => {
+        it('should dispatch getBreedDetailsSuccess', () => {
+          actions = hot('-a', { a: breedActions.getBreedDetails({ breed: 'Poodle' }) });
+
+          const serviceResponse = cold('-a', {
+            a: { success: true, data: [mockBreedDetails] },
+          });
+          service.getBreedDetails = jest.fn(() => serviceResponse);
+
+          const expected = cold('--a', {
+            a: breedActions.getBreedDetailsSuccess({ breed: mockBreedDetails, success: true }),
+          });
+
+          expect(effects.getBreedDetails$).toBeObservable(expected);
+          expect(service.getBreedDetails).toHaveBeenCalled();
+        });
+      });
+
+      describe('when the service returns an error', () => {
+        it('should dispatch getBreedDetailsFailure', () => {
+          const error = new Error('oops');
+
+          actions = hot('-a', { a: breedActions.getBreedDetails({ breed: 'Poodle' }) });
+
+          const serviceResponse = cold('-#|', {}, error);
+          service.getBreedDetails = jest.fn(() => serviceResponse);
+
+          const expected = cold('--a', { a: breedActions.getBreedDetailsFailure({error}) });
+
+          expect(effects.getBreedDetails$).toBeObservable(expected);
+          expect(service.getBreedDetails).toHaveBeenCalled();
+        })
+      });
+    })
+  });
+
+  describe('addBreed$', () => {
+    describe('when the service returns successful', () => {
+      it('should dispatch addBreedSuccess', () => {
+        const newBreed = {
+          name: 'Golden Retriever',
+          description: 'Friendly and tolerant',
+        };
+        actions = hot('-a', { a: breedActions.addBreed({ breed: newBreed as Breed}) });
+
+        const serviceResponse = cold('-a', {
+          a: { success: true, data: [...mockBreedList, newBreed.name] },
+        });
+        service.addBreed = jest.fn(() => serviceResponse);
+
+        const expected = cold('--a', {
+          a: breedActions.addBreedSuccess({
+            breeds: [...mockBreedList, newBreed.name],
+          }),
+        });
+
+        expect(effects.addBreed$).toBeObservable(expected);
+        expect(service.addBreed).toHaveBeenCalled();
+      });
+    });
+
+    describe('when the service returns an error', () => {
+      it('should dispatch addBreedFailure', () => {
+        const error = new Error('oops');
+        const newBreed = {
+          name: 'Golden Retriever',
+          description: 'Friendly and tolerant',
+        };
+
+        actions = hot('-a', { a: breedActions.addBreed({ breed: newBreed as Breed }) });
+
+        const serviceResponse = cold('-#|', {}, error);
+        service.addBreed = jest.fn(() => serviceResponse);
+
+        const expected = cold('--a', {
+          a: breedActions.addBreedFailure({ error }),
+        });
+
+        expect(effects.addBreed$).toBeObservable(expected);
+        expect(service.addBreed).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('resetAddBreed$', () => {
+    it('should dispatch resetAddBreed', () => {
+      actions = hot('-a', {
+        a: breedActions.addBreedSuccess({ breeds: mockBreedList }),
+      });
+
+      const expected = cold('-a', { a: breedActions.resetAddBreed() });
+
+      expect(effects.resetAddBreed$).toBeObservable(expected);
     });
   });
 });

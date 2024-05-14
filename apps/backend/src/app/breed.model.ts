@@ -1,4 +1,4 @@
-export interface Breed {
+export type Breed = {
   name: string;
   description: string;
   size: string;
@@ -6,4 +6,10 @@ export interface Breed {
   lifeExpectancy: string;
   temperament: string[];
   image: string;
+}
+
+export type ApiResponse<T> = {
+  data: T[];
+  success: boolean;
+  message?: string; 
 }
