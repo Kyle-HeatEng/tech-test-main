@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import breedList from '../assets/breed-list.json';
 import { Breed } from './breed.model';
 
@@ -23,5 +23,22 @@ export class BreedService {
     }
 
     return breedInfo;
+  }
+
+  createBreed(breed: Breed): string[] {
+    const hasBreed = breedInfos.some( 
+      (breedInfo) => breedInfo.name === breed.name 
+    );
+    
+    if(hasBreed) {
+      throw new ConflictException({
+        success: false,
+        message: 'Breed already exists',
+      });
+    }
+
+    breedInfos.push(breed);
+    
+    return this.getAllBreeds();
   }
 }

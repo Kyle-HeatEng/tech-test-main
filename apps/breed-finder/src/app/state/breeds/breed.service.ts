@@ -23,4 +23,8 @@ export class BreedService {
     return this.http.get<ApiResponse<Breed>>(`http://localhost:3000/api/breed/${breed}`)
   }
 
+  public addBreed(breed: Breed): Observable<ApiResponse<string>> {
+    return this.http.post<ApiResponse<string>>('http://localhost:3000/api/breed', breed)
+  }
+
 }

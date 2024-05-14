@@ -1,5 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 
+import { CreateBreedDto } from '../dtos/create-breed.dto';
 import { ApiResponse, Breed } from './breed.model';
 import { BreedService } from './breed.service';
 
@@ -12,7 +13,7 @@ export class BreedController {
     return {
       data: this.breedService.getAllBreeds(),
       success: true,
-    }
+    };
   }
 
   @Get(':breed')
@@ -20,6 +21,14 @@ export class BreedController {
     return {
       data: [this.breedService.getBreedDetails(breed)],
       success: true,
-    }
+    };
+  }
+
+  @Post()
+  createBreed(@Body() breed: CreateBreedDto): ApiResponse<string> {
+    return {
+      data: this.breedService.createBreed(breed as Breed),
+      success: true,
+    };
   }
 }

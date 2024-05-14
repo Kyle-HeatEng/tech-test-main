@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { AddBreedPage } from './add-breed/add-breed.page';
 import { BreedDetailsPageComponent } from './breed-details/breed-details.page';
 import { OverviewPageComponent } from './overview/overview.page';
 import { breedDetailsResolver } from './resolvers/breed-details.resolver';
@@ -11,4 +12,8 @@ export const appRoutes: Route[] = [
     component: BreedDetailsPageComponent,
     resolve: { breedDetails: breedDetailsResolver },
   },
+  {
+    path: 'breed',
+    component: AddBreedPage
+  }
 ];

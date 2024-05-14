@@ -47,4 +47,30 @@ export class BreedEffects {
       })
     );
   });
+
+  addBreed$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(breedActions.addBreed),
+      concatMap(({ breed }) => {
+        return this.breedService.addBreed(breed).pipe(
+          map((res) => {
+            const { data, success, message } = res;
+            if (!success) {
+              breedActions.addBreedFailure({ error: new Error(message) });
+            }
+            return breedActions.addBreedSuccess({ breeds: data });
+          }),
+          catchError((e) => of(breedActions.addBreedFailure({ error: e })))
+        );
+      })
+    );
+  });
+
+  resetAddBreed$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(breedActions.addBreedSuccess),
+      map(() => breedActions.resetAddBreed())
+    );
+  });
+  
 }

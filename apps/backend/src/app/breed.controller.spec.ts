@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 
-import { NotFoundException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
+import { CreateBreedDto } from '../dtos/create-breed.dto';
 import { BreedController } from './breed.controller';
 import { BreedService } from './breed.service';
 
@@ -30,18 +31,33 @@ describe('AppController', () => {
           provide: BreedService,
           useValue: {
             getAllBreeds: jest.fn().mockReturnValue(mockBreedList),
-            getBreedDetails: jest.fn().mockImplementation((breedName: string) => {
-              const isBreed = mockBreedList.includes(breedName);
-              if(!isBreed) {
-                throw new NotFoundException({
-                  success: false,
-                  message: 'Breed not found',
-                });
-              }
-              return mockBreedDetails;
-            })
-          }
-        }
+            getBreedDetails: jest
+              .fn()
+              .mockImplementation((breedName: string) => {
+                const isBreed = mockBreedList.includes(breedName);
+                if (!isBreed) {
+                  throw new NotFoundException({
+                    success: false,
+                    message: 'Breed not found',
+                  });
+                }
+                return mockBreedDetails;
+              }),
+            createBreed: jest
+              .fn()
+              .mockImplementation((breed: CreateBreedDto) => {
+                const hasBreed = mockBreedList.includes(breed.name);
+                if (hasBreed) {
+                  throw new ConflictException({
+                    success: false,
+                    message: 'Breed already exists',
+                  });
+                }
+                mockBreedList.push(breed.name);
+                return mockBreedList;
+              }),
+          },
+        },
       ],
     }).compile();
 
@@ -73,4 +89,40 @@ describe('AppController', () => {
       expect(breedService.getBreedDetails).toHaveBeenCalledWith('Husky');
     });
   });
+
+   describe('createBreed', () => {
+     it('should create a new breed', () => {
+       const newBreed: CreateBreedDto = {
+         name: 'Beagle',
+         description: 'Small hound dog',
+         size: 'Medium',
+         origin: 'England',
+         lifeExpectancy: '12-15 years',
+         temperament: ['Friendly', 'Curious'],
+       };
+
+       const breedResponse = breedController.createBreed(newBreed);
+       expect(breedResponse.data).toEqual(mockBreedList);
+       expect(breedResponse.success).toEqual(true);
+       expect(breedService.createBreed).toHaveBeenCalledWith(newBreed as any);
+     });
+
+     it('should throw an error if the breed already exists', () => {
+       const existingBreed: CreateBreedDto = {
+         name: 'Labrador',
+         description: 'Large hound dog',
+         size: 'Large',
+         origin: 'Canada',
+         lifeExpectancy: '10-12 years',
+         temperament: ['Kind', 'Outgoing'],
+       };
+
+       expect(() => breedController.createBreed(existingBreed)).toThrow(
+         ConflictException
+       );
+       expect(breedService.createBreed).toHaveBeenCalledWith(
+         existingBreed as any
+       );
+     });
+   });
 });

@@ -1,12 +1,16 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { breedActions } from './breed.actions';
-import { BreedState } from './breed.model';
+import { BreedState, LoadStatus } from './breed.model';
 
 export const initialState: BreedState = {
   breedList: [],
   breedDetails: {
     success: null,
     details: null
+  },
+  addBreed: {
+    loadStatus: 'not loaded',
+    success: null,
   }
 };
 
@@ -36,5 +40,24 @@ export const breedReducer = createFeature({
         details: null
       }
     })),
+    on(breedActions.addBreed, (state) => ({
+      ...state,
+      addBreed: {
+        loadStatus: 'loading' as LoadStatus,
+        success: null
+      }
+    })),
+    on(breedActions.addBreedSuccess, (state, {breeds}) => ({
+      ...state,
+      breedList: breeds,
+      addBreed: {
+        loadStatus: 'loaded' as LoadStatus,
+        success: true
+      }
+    })),
+    on(breedActions.resetAddBreed, (state) => ({
+      ...state,
+      addBreed: initialState.addBreed
+    })),    
   )
 });

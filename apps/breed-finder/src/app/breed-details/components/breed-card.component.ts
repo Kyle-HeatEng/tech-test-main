@@ -12,7 +12,7 @@ import { BreedCardErrorComponent } from "./breed-card-error.component";
     <div class="card">
       <div class="card-header text-center">
         <img
-          [src]="details()!.image"
+          [src]="details()?.image ?? 'assets/no-image.jpeg'"
           alt="{{ details()!.name }}"
           class="card-img-top rounded"
         />
