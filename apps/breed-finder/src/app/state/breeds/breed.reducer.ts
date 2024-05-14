@@ -3,7 +3,11 @@ import { breedActions } from './breed.actions';
 import { BreedState } from './breed.model';
 
 export const initialState: BreedState = {
-  breedList: []
+  breedList: [],
+  breedDetails: {
+    success: null,
+    details: null
+  }
 };
 
 export const breedReducer = createFeature({
@@ -15,6 +19,22 @@ export const breedReducer = createFeature({
         ...state,
         breedList: breeds
       }
-    })
+    }),
+    on(breedActions.getBreedDetailsSuccess, (state, {breed, success}) => {
+      return {
+        ...state,
+        breedDetails: {
+          success,
+          details: breed
+        }
+      }
+    }),
+    on(breedActions.getBreedListFailure, (state, {error}) => ({
+      ...state,
+      breedDetails: {
+        success: false,
+        details: null
+      }
+    })),
   )
 });
