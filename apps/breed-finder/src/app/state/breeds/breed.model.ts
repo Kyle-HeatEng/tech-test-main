@@ -1,7 +1,9 @@
 export type BreedState = {
   breedList: string[]
   breedDetails: {
-    success: boolean | null;
+    //Normally would include a loadStatus however, wanted to
+    //keep to the maximum of 1 optional task.
+    success: boolean | null; 
     details: Breed | null;
   },
   addBreed: {

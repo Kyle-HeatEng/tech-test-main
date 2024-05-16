@@ -58,6 +58,10 @@ export const breedReducer = createFeature({
     on(breedActions.resetAddBreed, (state) => ({
       ...state,
       addBreed: initialState.addBreed
-    })),    
+    })),
+    on(breedActions.resetGetBreedDetails, (state) => ({
+      ...state,
+      breedDetails: initialState.breedDetails
+    }))  
   )
 });

@@ -8,6 +8,7 @@ export const breedActions = createActionGroup({
     'Get Breed List Success': props<{ breeds: string[] }>(),
     'Get Breed List Failure': props<{ error: Error }>(),
     'Get Breed Details': props<{ breed: string }>(),
+    'Reset Get Breed Details': emptyProps(), 
     'Get Breed Details Success': props<{ breed: Breed; success: boolean }>(),
     'Get Breed Details Failure': props<{ error: Error }>(),
     'Add Breed': props<{ breed: Breed }>(),
